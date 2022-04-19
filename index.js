@@ -4,18 +4,20 @@ const img = document.getElementById("img");
 const predicciones = cocoSsd.load().then((model) => {
   // detect objects in the image.
   model.detect(img).then((predictions) => {
+    console.log(predictions);
     const divMensaje = document.getElementById("mensaje");
     const { class: clase } = predictions[0];
     divMensaje.className = "alert alert-success text-center";
     divMensaje.style = "width: 600px";
-      divMensaje.innerHTML = `Prediccion: <b>${clase}</b>`;
-      
-      return clase;
+    divMensaje.innerHTML = `Prediccion: <b>${clase}</b>`;
+
+    document.getElementById("boton").addEventListener("click", function () {
+      cargarVoces(clase).speechSynthesis.speak(clase);
+    });
   });
-    
 });
 
-function myFunction(paramPrediccion) {
+const cargarVoces = (paramPrediccion) => {
   var voices = speechSynthesis.getVoices();
   //console.log(voices);
   if (voices.length !== 0) {
@@ -41,18 +43,7 @@ function myFunction(paramPrediccion) {
     msg.onend = function (e) {
       console.log("Finished in " + event.elapsedTime + " seconds.");
     };
-
-    speechSynthesis.speak(msg);
-
-    clearInterval(mytimer);
   }
-}
+};
 
-predicciones.then((clase) => {
-
-
-
-    document.getElementById("boton").addEventListener("click", function () {
-        myFunction(clase);
-    });
-}
+cargarVoces();
