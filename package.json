@@ -1,0 +1,25 @@
+{
+  "name": "deteccionobjetostensorflow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": " nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielRojas14/AprendizajeInteligente.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/danielRojas14/AprendizajeInteligente/issues"
+  },
+  "homepage": "https://github.com/danielRojas14/AprendizajeInteligente#readme",
+  "dependencies": {
+    "@iamtraction/google-translate": "^1.1.2",
+    "@tensorflow-models/coco-ssd": "^2.2.2",
+    "express": "^4.17.3",
+    "nodemon": "^2.0.15"
+  }
+}

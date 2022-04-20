@@ -1,49 +1,63 @@
-const img = document.getElementById("img");
+const express = require("express");
+const app = express();
+const port = 3000;
 
-// Load the model.
-const predicciones = cocoSsd.load().then((model) => {
-  // detect objects in the image.
-  model.detect(img).then((predictions) => {
-    console.log(predictions);
-    const divMensaje = document.getElementById("mensaje");
-    const { class: clase } = predictions[0];
-    divMensaje.className = "alert alert-success text-center";
-    divMensaje.style = "width: 600px";
-    divMensaje.innerHTML = `Prediccion: <b>${clase}</b>`;
+app.get("/", (req, res) => res.send("Hello World!"));
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
-    document.getElementById("boton").addEventListener("click", function () {
-      cargarVoces(clase).speechSynthesis.speak(clase);
-    });
-  });
-});
+const translate = require("@iamtraction/google-translate");
+const cocoSsd = require("@tensorflow-models/coco-ssd");
+// const img = document.getElementById("img");
 
-const cargarVoces = (paramPrediccion) => {
+const cargarVoces = () => {
   var voices = speechSynthesis.getVoices();
-  //console.log(voices);
-  if (voices.length !== 0) {
-    var msg = new SpeechSynthesisUtterance();
 
-    msg.text = paramPrediccion;
-    msg.lang = document.getElementById("lang").value; //'hi-IN';
+  const select = document.getElementById("lang");
 
-    const select = document.getElementById("lang");
-
-    for (var i = 0; i < voices.length; i++) {
-      var opcion = document.createElement("option");
-      opcion.text = voices[i].name + " (" + voices[i].lang + ")";
-      select.add(opcion);
-
-      // if (voices[i].lang == msg.lang) {
-      //   msg.voice = voices[i]; // Note: some voices don't support altering params
-      //   msg.voiceURI = voices[i].voiceURI;
-      //   // break;
-      // }
-    }
-
-    msg.onend = function (e) {
-      console.log("Finished in " + event.elapsedTime + " seconds.");
-    };
+  for (var i = 0; i < voices.length; i++) {
+    var opcion = document.createElement("option");
+    opcion.text = voices[i].name + " (" + voices[i].lang + ")";
+    select.add(opcion);
   }
 };
+const reproducirPrediccion = (paramPrediccion) => {
+  var msg = new SpeechSynthesisUtterance();
 
-cargarVoces();
+  msg.text = paramPrediccion;
+  msg.lang = document.getElementById("lang").value;
+
+  speechSynthesis.speak(msg);
+
+  msg.onend = function (e) {
+    console.log("Finished in " + event.elapsedTime + " seconds.");
+  };
+};
+
+translate("Tu es incroyable!", { to: "en" })
+  .then((res) => {
+    console.log(res.text); // OUTPUT: You are amazing!
+  })
+  .catch((err) => {
+    console.error(err);
+  });
+
+// // Load the model.
+// const predicciones = cocoSsd.load().then((model) => {
+//   // detect objects in the image.
+//   model.detect(img).then((predictions) => {
+//     console.log(predictions);
+//     const divMensaje = document.getElementById("mensaje");
+//     const { class: clase } = predictions[0];
+//     divMensaje.className = "alert alert-success text-center";
+//     divMensaje.style = "width: 600px";
+//     divMensaje.innerHTML = `Prediccion: <b>${clase}</b>`;
+
+//     const select = document.getElementById("lang");
+
+//     document.getElementById("lang").addEventListener("click", function () {
+//       cargarVoces();
+//     });
+
+//     document.getElementById("boton").addEventListener("click", () => {});
+//   });
+// });
