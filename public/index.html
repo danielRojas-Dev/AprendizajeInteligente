@@ -22,34 +22,46 @@
     <div class="container d-flex justify-content-center">
       <div class="row">
         <div class="col-md-12">
-          <h1 class="mt-4 text-center">
-            Reconocedor de Objetos
-          </h1>
+          <h1 class="mt-4 text-center">Reconocedor de Objetos</h1>
           <form id="form">
-          <img
-            class="mt-5 form-control mb-3"
-            src=""
-            id="img"
-            style="height: 300px;  border-radius: 10px"
-            alt=""
-            hidden
-          />
+            <img
+              class="mt-5 form-control mb-3"
+              src=""
+              id="img"
+              style="height: 300px; border-radius: 10px"
+              alt=""
+              hidden
+            />
 
-          <input id="inputFile" class="mt-5 mb-3 form-control" type="file">
+            <input id="inputFile" class="mt-5 mb-3 form-control" type="file" />
 
-          <div class="d-flex justify-content-center mb-5" id="mensaje"></div>
+            <div class="d-flex justify-content-center mb-5" id="mensaje"></div>
 
-          <div class="d-flex justify-content-center mt-3" id="mensajeTraducido"></div>
+            <div
+              class="d-flex justify-content-center mt-3"
+              id="mensajeTraducido"
+            ></div>
 
-        
-          <select disabled class="form-control mb-3"  id="lang"  /> 
-          <option selected  value="0">Seleccione un Idioma</option>
-          </select>
-          <small id="alertSelect"></small>
-            
-         
-          <input disabled id="boton" type="Button" class="btn btn-primary form-control mb-5" value="Reproducir Prediccion" />
-         </form>
+            <select disabled class="form-control mb-3" id="lang">
+              <option selected value="0">Seleccione un Idioma</option>
+            </select>
+            <small id="alertSelect"></small>
+
+            <input
+              disabled
+              id="boton"
+              type="Button"
+              class="btn btn-primary form-control mb-5"
+              value="Reproducir Prediccion"
+            />
+          </form>
+        </div>
+        <div class="col-md-12">
+          <div id="resultado"></div>
+        </div>
+
+        <div class="col-md-12">
+          <div id="grafica"></div>
         </div>
       </div>
     </div>
@@ -70,5 +82,8 @@
       integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
       crossorigin="anonymous"
     ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity"></script>
+    <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
   </body>
 </html>

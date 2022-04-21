@@ -75,7 +75,7 @@ const traducirPrediccion = (paramPrediccion) => {
     const encodedParams = new URLSearchParams();
     encodedParams.append("q", paramPrediccion);
     encodedParams.append("target", codIdioma);
-    encodedParams.append("source", "en");
+    encodedParams.append("source", "es");
 
     const options = {
       method: "POST",
@@ -83,7 +83,7 @@ const traducirPrediccion = (paramPrediccion) => {
         "content-type": "application/x-www-form-urlencoded",
         "Accept-Encoding": "application/gzip",
         "X-RapidAPI-Host": "google-translate1.p.rapidapi.com",
-        "X-RapidAPI-Key": "5b32519b9cmsh22a61f71af1a9c2p164a15jsn7dd127f82b01",
+        "X-RapidAPI-Key": "352ce007demshb77aba49d6df73dp188a8ajsn2d56ee0065c8",
       },
       body: encodedParams,
     };
@@ -98,8 +98,9 @@ const traducirPrediccion = (paramPrediccion) => {
         const { translations } = data;
         const { translatedText } = translations[0];
 
-        divMensajeTraducido.className = "alert alert-warning text-center";
-        divMensajeTraducido.style = "width: 600px";
+        divMensajeTraducido.className =
+          "alert alert-warning form-control text-center";
+
         divMensajeTraducido.innerHTML = `Prediccion Traducida al ${textCortado}: <b> ${translatedText}</b>`;
         reproducirPrediccion(translatedText);
       });
@@ -110,7 +111,7 @@ const predicciones = () => {
   cocoSsd.load().then((model) => {
     // detect objects in the image.
     model.detect(img).then((predictions) => {
-      console.log(predictions);
+      // console.log(predictions);
       if (predictions.length == 0) {
         divMensaje.className = "alert alert-danger form-control text-center";
         divMensaje.innerHTML = `<b>No se pudo predecir que es el objeto de la imagen.Igrese una nueva imagen</b>`;
@@ -129,18 +130,135 @@ const predicciones = () => {
 
       select.disabled = false;
       btnReproducir.disabled = false;
-
-      //evento que instancia a la funcion cargar voces
-
-      document.getElementById("lang").addEventListener("click", function () {
-        cargarVoces();
-      });
-
-      //evento que reproduce el audio con el texto
-
-      document.getElementById("boton").addEventListener("click", () => {
-        traducirPrediccion(clase);
-      });
     });
   });
+};
+//evento que instancia a la funcion cargar voces
+
+document.getElementById("lang").addEventListener("click", function () {
+  cargarVoces();
+});
+
+// parte de marcos
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("inputFile").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    obtenerTextoImagen(file);
+  });
+  cargarModelo();
+});
+const obtenerTextoImagen = async (imagen) => {
+  const path = obtenerPathImagen(imagen);
+
+  const palabras = await obtenerPalabras(path);
+
+  // console.log(palabras);
+
+  const resultClasificacion = await clasificarPalabras(palabras);
+
+  // console.log(resultClasificacion);
+  pintarResultadoClasificacion(palabras, resultClasificacion);
+  select.disabled = false;
+  let palabrita = palabras.join(" ");
+  btnReproducir.disabled = false;
+  btnReproducir.addEventListener("click", () => {
+    traducirPrediccion(palabrita);
+  });
+};
+
+const resultado = document.getElementById("resultado");
+const grafica = document.getElementById("grafica");
+const inputFile = document.getElementById("inputFile");
+let modelo;
+
+// funcion para cargar el modelo de toxicidad
+const cargarModelo = async () => {
+  inputFile.disabled = true;
+  inputFile;
+  resultado.innerHTML = `<p>Estado: Cargando modelo, por favor espere</p>`;
+  const limite = 0.9;
+
+  modelo = await toxicity.load(limite);
+
+  resultado.innerHTML = `<p>Estado: Modelo Cargado</p>`;
+  inputFile.disabled = false;
+};
+
+// funcion para obtener path de imagen
+const obtenerPathImagen = (imagen) => {
+  const path = window.URL.createObjectURL(imagen);
+  return path;
+};
+
+// funcion para obtener arreglo de palabras
+const obtenerPalabras = async (path) => {
+  let {
+    data: { text: texto },
+  } = await Tesseract.recognize(path, "spa", {
+    logger: ({ status, progress }) => {
+      resultado.innerHTML = `<p>Estado: ${status} - Porcentaje : ${Math.round(
+        progress * 100
+      )}%</p>`;
+    },
+  });
+
+  // quitar los caracteres especiales
+  texto = texto.replace(/[^\w\s]/gi, "");
+
+  // separar las palabras por medio del salto de linea
+  texto = texto.split("\n").join(" ");
+  // separar las palabras por medio del espacio
+  texto = texto.split(" ");
+  // quitar espacios en blanco
+  texto = texto.filter((palabra) => palabra !== "");
+  //   console.log(texto);
+
+  return texto;
+};
+
+const clasificarPalabras = async (palabras) => {
+  resultado.innerHTML = `<p>Estado: Clasificando...</p>`;
+  grafica.innerHTML = "";
+
+  const predicciones = await modelo.classify(palabras);
+
+  return predicciones;
+};
+
+const pintarResultadoClasificacion = (palabras, predicciones) => {
+  // vaciamos el contenido del resultado
+  resultado.innerHTML = "";
+
+  // declaramos la cabeza de la tabla
+  let tabla = `
+    <table class="table">
+        <thead>
+        <tr>
+        <th>Palabra</th>
+    `;
+
+  // insertamos los tipos de toxicidad
+  predicciones.forEach((prediccion) => {
+    tabla += `
+        <th scope="col">${prediccion.label}</th>
+    `;
+  });
+
+  // cerrar la cabeza de la tabla
+  tabla += `</tr></thead><tbody>`;
+
+  // recorremos las palabras y hacemos que coincidan con el arreglo de predicciones
+  palabras.forEach((palabra, index) => {
+    tabla += `<tr> <td>${palabra}</td>`;
+    predicciones.forEach(({ results }) => {
+      let claseCss = results[index].match ? "bg-success" : "bg-danger";
+      let mensaje = results[index].match ? "Si" : "No";
+      tabla += `<td class="${claseCss}">${mensaje}</td>`;
+    });
+    tabla += `</tr>`;
+  });
+  tabla += `</tbody></table>`;
+
+  grafica.innerHTML = tabla;
 };
