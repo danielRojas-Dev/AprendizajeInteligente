@@ -1,4 +1,4 @@
-# AprendizajeInteligente
+# Aprendizaje Intelegente (TensorFlow)
 
 para iniciar el proyecto, primero ejecutar el siguiente comando en la consola: npm install
 
